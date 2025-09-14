@@ -1,0 +1,72 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <list>
+#include <map>
+
+using namespace std;
+
+int main(int argc, char* argv[]){
+    if(argc != 3) {
+        cout << "Pattern: word_count.exe, input file, output file" << endl;
+        return 1;
+    }
+
+    ifstream input(argv[1]);
+    if(!input) {
+        cout << "Can't open file pechalka :(" << endl;
+        return 1;
+    }
+
+    list<string> strings;
+    string str;
+    while(getline(input, str)) {
+        strings.push_back(str);
+    }
+
+    input.close();
+
+    map<string,int> dictionary;
+    int n = 0;//общее количество слов
+
+    for(string str_ : strings) {
+        string word;
+        for(char letter : str_) {
+            if( (letter >= 'a' && letter <= 'z') ||
+                (letter >= 'A' && letter <= 'Z') ||
+                (letter >= '0' && letter <= '9')) {
+                word+=letter;
+            } else if (!word.empty()) {
+                n++;
+                dictionary[word]++;
+                word.clear();
+            }
+        }
+//если не заканчивается разделителем, а словом
+        if(!word.empty()) {
+            n++;
+            dictionary[word]++;
+            word.clear();
+        }
+    }
+
+    ofstream output(argv[2]);
+    if(!output) {
+        cout << "Can't open file pechalka :(" << endl;
+        return 1;
+    }
+
+    while(!dictionary.empty()) {
+        auto wordik = dictionary.begin();
+        for(auto i = dictionary.begin(); i != dictionary.end(); ++i) {
+            if(i->second > wordik->second) {
+                    wordik = i;
+            }
+        }
+            output << wordik->first << "," << wordik->second << "," << (wordik->second * 100 / n) << endl;
+        dictionary.erase(wordik);
+    }
+
+    output.close();
+    return 0;
+}
